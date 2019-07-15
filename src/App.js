@@ -25,22 +25,43 @@ class App extends Component {
 
     // this.state = {rows: movieRows}
 
-    this.performSearch()
+    this.performSearch("life")
   }
-  performSearch() {
+  performSearch(searchTerm) {
     console.log("Perform search using mobieDB")
-    const urlString = "https://api.themoviedb.org/3/search/movie?query=training&api_key=9c240d94eabedb87dd2927a410668cb0&language=en-US"
+    const urlString = "https://api.themoviedb.org/3/search/movie?api_key=9c240d94eabedb87dd2927a410668cb0&language=en-US&query=" + searchTerm
     $.ajax({
       url: urlString,
       success: (searchResults) => {
         console.log("Fetched Data successfully")
+        //console.log(searchResults)
+        const results = searchResults.results
+        console.log(results[0])
 
+        var movieRows = []
+
+        results.forEach((movie) => {
+          movie.poster_src = "https://image.tmdb.org/t/p/w780" + movie.poster_path
+          //console.log(movie.poster_path)
+          const movieRow = <MovieRow movie={movie} />
+          movieRows.push(movieRow)
+        })
+
+        this.setState({rows: movieRows})
       },
       error: (xhr, status, err) => {
         console.log("Failed to fetch Data")
+        //const movie   =  movie.poster_src = {logo}
       }
 
-    })
+    }) 
+  }
+
+  searchChangedHandler(event){
+    console.log(event.target.value)
+    const boundObject = this
+    const searchTerm = event.target.value
+    boundObject.performSearch(searchTerm)
   }
   render(){
     return (
@@ -67,7 +88,7 @@ class App extends Component {
         <form className="w-full block lg:items-center lg:w-auto">
           <div className="flex flex-wrap mx-1">
             <div className="w-full px-1">
-              <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="inline-movie-search" type="text" placeholder="Training Day" />
+              <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="inline-movie-search" type="text" placeholder="Training Day" onChange={this.searchChangedHandler.bind(this)}/>
             </div>
           </div>
         </form>
